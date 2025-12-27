@@ -223,6 +223,7 @@
             });
             output += '処理完了！';
             resultsDiv.textContent = output;
+            copyResults(); // 結果を自動でコピー
         }
 
         // 結果をクリップボードにコピー
@@ -231,7 +232,11 @@
             if (!resultsDiv.textContent.trim()) {
                 return;
             }
-            navigator.clipboard.writeText(resultsDiv.textContent);
+            navigator.clipboard.writeText(resultsDiv.textContent).then(() => {
+                console.log('コピーしました');
+            }).catch(err => {
+                console.error('コピーに失敗しました:', err);
+            });
         }
 
         // キー操作で前後の日を取得
