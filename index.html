@@ -120,6 +120,9 @@
         .github-icon {
             margin-right: 5px;
         }
+        .copy-button {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -138,6 +141,7 @@
             <p>左右キーで前後の日を取得できます</p>
         </div>
         <div id="results"></div>
+        <button class="copy-button" onclick="copyResults()">結果をコピーする</button>
     </div>
     <div class="change-token" onclick="showTokenInput()">トークンを変更</div>
     <a href="https://github.com/buzomo/today-gyazo-summary" class="github-link" target="_blank" rel="noopener noreferrer">
@@ -211,6 +215,20 @@
             });
             output += '処理完了！';
             resultsDiv.textContent = output;
+        }
+
+        // 結果をクリップボードにコピー
+        function copyResults() {
+            const resultsDiv = document.getElementById('results');
+            if (!resultsDiv.textContent.trim()) {
+                alert('コピーする内容がありません。');
+                return;
+            }
+            navigator.clipboard.writeText(resultsDiv.textContent).then(() => {
+                alert('クリップボードにコピーしました。');
+            }).catch(err => {
+                alert('コピーに失敗しました: ' + err);
+            });
         }
 
         // キー操作で前後の日を取得
