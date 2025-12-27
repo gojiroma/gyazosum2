@@ -136,7 +136,7 @@
         </div>
         <div class="date-input">
             <label for="date">日付 (YYYY-MM-DD):</label>
-            <input type="text" id="date" placeholder="例: 2025-12-27" value="2025-12-27">
+            <input type="text" id="date" placeholder="例: 2025-12-27">
             <button onclick="fetchAndProcess()">取得</button>
             <p>左右キーで前後の日を取得できます</p>
         </div>
@@ -149,10 +149,17 @@
         GitHubリポジトリ
     </a>
     <script>
-        // LocalStorageからトークンを読み込む
+        // LocalStorageからトークンと日付を読み込む
         const savedToken = localStorage.getItem('gyazoToken');
+        const savedDate = localStorage.getItem('gyazoDate');
         if (!savedToken) {
             document.getElementById('tokenInputArea').style.display = 'block';
+        }
+        if (savedDate) {
+            document.getElementById('date').value = savedDate;
+        } else {
+            const today = new Date();
+            document.getElementById('date').value = formatDate(today);
         }
 
         // トークン入力エリアを表示
@@ -166,25 +173,26 @@
             if (token) {
                 localStorage.setItem('gyazoToken', token);
                 document.getElementById('tokenInputArea').style.display = 'none';
-                alert('トークンを保存しました。');
-            } else {
-                alert('トークンを入力してください。');
             }
+        }
+
+        // 日付を保存
+        function saveDate(date) {
+            localStorage.setItem('gyazoDate', date);
         }
 
         // 指定日の画像を取得し、表示
         async function fetchAndProcess() {
             const token = localStorage.getItem('gyazoToken');
             if (!token) {
-                alert('トークンが設定されていません。トークンを入力してください。');
                 showTokenInput();
                 return;
             }
             const dateInput = document.getElementById('date').value.trim();
             if (!dateInput) {
-                alert('日付を入力してください。');
                 return;
             }
+            saveDate(dateInput);
             try {
                 const response = await fetch(`https://api.gyazo.com/api/search?access_token=${token}&query=date:${dateInput}&per=100`);
                 if (!response.ok) {
@@ -221,14 +229,9 @@
         function copyResults() {
             const resultsDiv = document.getElementById('results');
             if (!resultsDiv.textContent.trim()) {
-                alert('コピーする内容がありません。');
                 return;
             }
-            navigator.clipboard.writeText(resultsDiv.textContent).then(() => {
-                alert('クリップボードにコピーしました。');
-            }).catch(err => {
-                alert('コピーに失敗しました: ' + err);
-            });
+            navigator.clipboard.writeText(resultsDiv.textContent);
         }
 
         // キー操作で前後の日を取得
@@ -238,12 +241,14 @@
                 const currentDate = new Date(dateInput.value);
                 currentDate.setDate(currentDate.getDate() - 1);
                 dateInput.value = formatDate(currentDate);
+                saveDate(dateInput.value);
                 await fetchAndProcess();
             } else if (e.key === 'ArrowRight') {
                 const dateInput = document.getElementById('date');
                 const currentDate = new Date(dateInput.value);
                 currentDate.setDate(currentDate.getDate() + 1);
                 dateInput.value = formatDate(currentDate);
+                saveDate(dateInput.value);
                 await fetchAndProcess();
             }
         });
